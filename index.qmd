@@ -92,7 +92,7 @@ plt.show()
 
 ---
 
-### Ventes de jeux vidéo (Records)
+### Records de ventes annuels
 
 ```{python}
 #| echo: false
@@ -102,16 +102,35 @@ import sqlite3
 import matplotlib.pyplot as plt
 
 conn = sqlite3.connect('./data.db')
-query = "SELECT CAST(strftime('%Y', release_date) AS INTEGER) AS year, MAX(total_sales) AS top_game_sales FROM video_games WHERE release_date IS NOT NULL AND total_sales IS NOT NULL GROUP BY year"
-df_vg = pd.read_sql_query(query, conn)
+query = """
+SELECT title, CAST(strftime('%Y', release_date) AS INTEGER) AS year, total_sales 
+FROM video_games 
+WHERE release_date IS NOT NULL AND total_sales IS NOT NULL
+"""
+df = pd.read_sql_query(query, conn)
 conn.close()
 
-df_vg = df_vg[(df_vg['year'] >= 1999) & (df_vg['year'] <= 2024)]
+# Préparation des données : Top 1 par an entre 1999 et 2024
+df = df[(df['year'] >= 1999) & (df['year'] <= 2024)]
+top_sales = df.sort_values(['year', 'total_sales'], ascending=[True, False]).groupby('year').head(1)
 
-plt.figure(figsize=(10, 4))
-plt.plot(df_vg['year'], df_vg['top_game_sales'], marker='o', color='#3498db', linewidth=2)
-plt.title('Ventes du record de l\'année (en Millions)', fontsize=14)
-plt.grid(True, alpha=0.3)
+plt.figure(figsize=(10, 7))
+bars = plt.barh(top_sales['year'].astype(str), top_sales['total_sales'], color='#3498db', alpha=0.8)
+
+# Ajout des noms des jeux sur les barres
+for i, bar in enumerate(bars):
+    width = bar.get_width()
+    game_title = top_sales.iloc[i]['title']
+    plt.text(width + 0.5, bar.get_y() + bar.get_height()/2, 
+             f"{game_title} ({width:.1f}M)", 
+             va='center', fontsize=7, color='#2c3e50')
+
+plt.title('Jeux les plus vendus par année (1999-2024)', fontsize=14)
+plt.xlabel('Ventes mondiales (Millions d\'unités)', fontsize=10)
+plt.gca().invert_yaxis() # 1999 en haut
+plt.xticks(fontsize=8)
+plt.yticks(fontsize=8)
+plt.grid(axis='x', linestyle='--', alpha=0.3)
 plt.tight_layout()
 plt.show()
 ```

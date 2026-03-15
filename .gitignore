@@ -21,6 +21,7 @@ __pycache__/
 *_cache/
 index.html
 site_libs/
+.quarto_ipynb*
 
 # Données et Bases de données
 # On ignore la DB générée et les gros fichiers CSV pour ne pas alourdir Git
