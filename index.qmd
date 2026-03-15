@@ -141,6 +141,49 @@ plt.tight_layout()
 plt.show()
 ```
 
+---
+
+### Comparaison : Ventes vs Tueries
+
+```{python}
+#| echo: false
+#| fig-align: center
+import pandas as pd
+import sqlite3
+import matplotlib.pyplot as plt
+
+conn = sqlite3.connect('./data.db')
+# Extraction des ventes records
+query_vg = "SELECT CAST(strftime('%Y', release_date) AS INTEGER) AS year, MAX(total_sales) AS top_game_sales FROM video_games WHERE release_date IS NOT NULL AND total_sales IS NOT NULL GROUP BY year"
+df_vg = pd.read_sql_query(query_vg, conn)
+# Extraction des tueries
+query_ss = "SELECT year, COUNT(*) AS shooting_count FROM school_shootings WHERE year IS NOT NULL GROUP BY year"
+df_ss = pd.read_sql_query(query_ss, conn)
+conn.close()
+
+# Fusion et filtrage
+df_total = pd.merge(df_vg, df_ss, on='year')
+df_total = df_total[(df_total['year'] >= 1999) & (df_total['year'] <= 2022)]
+
+fig, ax1 = plt.subplots(figsize=(10, 5))
+
+# Axe 1 : Ventes (Bleu)
+ax1.set_xlabel('Année')
+ax1.set_ylabel('Ventes Record (Millions)', color='#3498db')
+ax1.plot(df_total['year'], df_total['top_game_sales'], color='#3498db', marker='o', label='Ventes')
+ax1.tick_params(axis='y', labelcolor='#3498db')
+
+# Axe 2 : Tueries (Orange)
+ax2 = ax1.twinx()
+ax2.set_ylabel('Nombre de tueries', color='#e67e22')
+ax2.plot(df_total['year'], df_total['shooting_count'], color='#e67e22', marker='s', linestyle='--', label='Tueries')
+ax2.tick_params(axis='y', labelcolor='#e67e22')
+
+plt.title('Ventes de Jeux Records vs Tueries Scolaires (1999-2022)')
+plt.tight_layout()
+plt.show()
+```
+
 ## 4. Modélisation
 
 - **Analyse de corrélation** : Intensité de la relation statistique.
