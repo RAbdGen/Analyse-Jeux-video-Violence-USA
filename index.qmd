@@ -51,7 +51,8 @@ L'idée ici est de poser le contexte sociétal avant d'entrer dans les chiffres.
 ### 🎮 Jeux Vidéo
 - **Titre & Genre**.
 - **Plateforme**.
-- **Ventes mondiales**.
+- **Ventes Américaines**.
+- **Date de sortie**.
 :::
 :::
 
@@ -59,7 +60,7 @@ L'idée ici est de poser le contexte sociétal avant d'entrer dans les chiffres.
 
 ::: {.callout-note appearance="simple"}
 ## Processus de traitement
-1. **Nettoyage** : Valeurs manquantes et doublons.
+1. **Nettoyage** : Enlever les données inutiles pour alléger la base de données.
 2. **Filtrage** : Focus exclusif sur les **États-Unis**.
 3. **Jointure** : Fusion temporelle par année.
 :::
