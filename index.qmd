@@ -100,6 +100,7 @@ plt.show()
 import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 conn = sqlite3.connect('./data.db')
 query = """
@@ -110,12 +111,17 @@ WHERE release_date IS NOT NULL AND total_sales IS NOT NULL
 df = pd.read_sql_query(query, conn)
 conn.close()
 
-# Préparation des données : Top 1 par an entre 1999 et 2024
-df = df[(df['year'] >= 1999) & (df['year'] <= 2024)]
+# Préparation des données : Top 1 par an entre 1999 et 2022 (exclusion 2023/2024)
+df = df[(df['year'] >= 1999) & (df['year'] <= 2022)]
 top_sales = df.sort_values(['year', 'total_sales'], ascending=[True, False]).groupby('year').head(1)
 
 plt.figure(figsize=(10, 7))
-bars = plt.barh(top_sales['year'].astype(str), top_sales['total_sales'], color='#3498db', alpha=0.8)
+
+# Création d'un dégradé de couleur basé sur les ventes
+norm = plt.Normalize(top_sales['total_sales'].min(), top_sales['total_sales'].max())
+colors = cm.get_cmap('YlOrRd')(norm(top_sales['total_sales'])) # Dégradé Jaune à Rouge
+
+bars = plt.barh(top_sales['year'].astype(str), top_sales['total_sales'], color=colors, edgecolor='grey', alpha=0.8)
 
 # Ajout des noms des jeux sur les barres
 for i, bar in enumerate(bars):
@@ -123,9 +129,9 @@ for i, bar in enumerate(bars):
     game_title = top_sales.iloc[i]['title']
     plt.text(width + 0.5, bar.get_y() + bar.get_height()/2, 
              f"{game_title} ({width:.1f}M)", 
-             va='center', fontsize=7, color='#2c3e50')
+             va='center', fontsize=7, color='#2c3e50', fontweight='bold')
 
-plt.title('Jeux les plus vendus par année (1999-2024)', fontsize=14)
+plt.title('Jeux les plus vendus par année (1999-2022)', fontsize=14)
 plt.xlabel('Ventes mondiales (Millions d\'unités)', fontsize=10)
 plt.gca().invert_yaxis() # 1999 en haut
 plt.xticks(fontsize=8)
