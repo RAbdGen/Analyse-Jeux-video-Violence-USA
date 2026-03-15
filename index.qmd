@@ -1,0 +1,118 @@
+---
+format:
+  revealjs:
+    theme: white
+    center: true
+    margin: 0.1
+---
+
+::: {.absolute top=20 left=20 style="font-size: 0.6em; text-align: left;"}
+ABDELLOU--GENESTIER Renaud<br>LAFARGE Baptiste
+:::
+
+::: {style="text-align: center;"}
+# Les jeux vidéos et les tueries dans les écoles américaines
+:::
+
+## Plan
+
+1. Présentation des données
+2. Préparation des données
+3. Analyse exploratoire
+4. Modélisation
+5. Conclusion
+
+## Introduction
+
+- Recrudescence des tueries dans les écoles américaines.
+- Mise en cause fréquente des jeux vidéo en raison de leur contenu violent.
+- Objectif : analyser les données pour vérifier s'il existe une corrélation réelle.
+
+## 1. Présentation des données
+
+### Tueries dans les écoles
+- **Date** : Date de l'événement.
+- **Morts et blessés** : Bilan humain.
+- **École** : Nom de l'établissement.
+
+### Ventes de jeux vidéo
+- **Titre** : Nom du jeu.
+- **Plateforme** : Console ou support.
+- **Genre** : Catégorie du jeu.
+- **Ventes mondiales** : Volume de ventes global.
+
+## 2. Préparation des données
+
+1. **Nettoyage** : Traitement des valeurs manquantes et suppression des doublons.
+2. **Filtrage** : Sélection exclusive des données relatives aux États-Unis.
+3. **Jointure** : Fusion des deux jeux de données sur la dimension temporelle (l'année).
+
+## 3. Analyse exploratoire
+
+### Évolution du nombre de tueries par an
+
+```{python}
+#| echo: false
+#| fig-align: center
+import pandas as pd
+import sqlite3
+import matplotlib.pyplot as plt
+
+conn = sqlite3.connect('./data.db')
+query = """
+SELECT year, COUNT(*) AS shooting_count
+FROM school_shootings
+WHERE year IS NOT NULL
+GROUP BY year
+ORDER BY year ASC
+"""
+df = pd.read_sql_query(query, conn)
+conn.close()
+
+plt.figure(figsize=(10, 5))
+plt.bar(df['year'].astype(str), df['shooting_count'], color='orange', edgecolor='black')
+plt.title('Nombre de tueries en milieu scolaire par année (USA)')
+plt.xticks(rotation=45, fontsize=8)
+plt.show()
+```
+
+---
+
+### Évolution des ventes de jeux vidéo
+
+```{python}
+#| echo: false
+#| fig-align: center
+import pandas as pd
+import sqlite3
+import matplotlib.pyplot as plt
+
+conn = sqlite3.connect('./data.db')
+query = """
+SELECT CAST(strftime('%Y', release_date) AS INTEGER) AS year, MAX(total_sales) AS top_game_sales
+FROM video_games 
+WHERE release_date IS NOT NULL AND total_sales IS NOT NULL
+GROUP BY year
+"""
+df_vg = pd.read_sql_query(query, conn)
+conn.close()
+
+df_vg = df_vg[(df_vg['year'] >= 1999) & (df_vg['year'] <= 2024)]
+
+plt.figure(figsize=(10, 5))
+plt.plot(df_vg['year'], df_vg['top_game_sales'], marker='o', color='tab:blue')
+plt.title('Ventes du record de l\'année (Millions)')
+plt.grid(True, alpha=0.3)
+plt.show()
+```
+
+## 4. Modélisation
+
+1. **Analyse de corrélation** : Mesurer l'intensité de la relation statistique entre les ventes de jeux vidéo et le nombre de tueries.
+2. **Régression linéaire** : Tentative de modélisation prédictive du nombre de tueries en fonction du volume de ventes des jeux vidéo.
+
+## 5. Conclusion
+
+- **Résultat** : Absence de corrélation directe statistiquement significative.
+- **Interprétation** : Les jeux vidéo ne semblent pas être le moteur principal de la violence scolaire.
+- **Perspectives** : Nécessité d'étudier d'autres facteurs (accès aux armes à feu, santé mentale, environnement socio-économique).
