@@ -1,55 +1,72 @@
 ---
+title: "Les jeux vidéos et les tueries dans les écoles américaines"
+author: "ABDELLOU--GENESTIER Renaud & LAFARGE Baptiste"
 format:
   revealjs:
-    theme: white
+    theme: simple
+    footer: "Analyse Big Data - 2026"
+    slide-number: true
+    progress: true
     center: true
-    margin: 0.1
+    transition: fade
+    background-transition: fade
+    highlight-style: github
+    title-slide-attributes:
+      data-background-color: "#f8f9fa"
 ---
-
-::: {.absolute top=20 left=20 style="font-size: 0.6em; text-align: left;"}
-ABDELLOU--GENESTIER Renaud<br>LAFARGE Baptiste
-:::
-
-::: {style="text-align: center;"}
-# Les jeux vidéos et les tueries dans les écoles américaines
-:::
 
 ## Plan
 
-1. Présentation des données
-2. Préparation des données
-3. Analyse exploratoire
-4. Modélisation
-5. Conclusion
+::: {.incremental}
+1. [Présentation des données]{style="color: #2c3e50;"}
+2. [Préparation des données]{style="color: #2c3e50;"}
+3. [Analyse exploratoire]{style="color: #2c3e50;"}
+4. [Modélisation]{style="color: #2c3e50;"}
+5. [Conclusion]{style="color: #2c3e50;"}
+:::
 
-## Introduction
+---
 
-- Recrudescence des tueries dans les écoles américaines.
-- Mise en cause fréquente des jeux vidéo en raison de leur contenu violent.
-- Objectif : analyser les données pour vérifier s'il existe une corrélation réelle.
+## Introduction {background-color="#f8f9fa"}
+
+- **Recrudescence** des tueries dans les écoles américaines.
+- **Mise en cause** fréquente des jeux vidéo (contenu violent).
+- **Objectif** : Analyser les données pour vérifier s'il existe une corrélation réelle.
+
+::: {.notes}
+L'idée ici est de poser le contexte sociétal avant d'entrer dans les chiffres.
+:::
 
 ## 1. Présentation des données
 
-### Tueries dans les écoles
-- **Date** : Date de l'événement.
-- **Morts et blessés** : Bilan humain.
-- **École** : Nom de l'établissement.
+::: {.columns}
+::: {.column width="50%"}
+### 🏫 Tueries
+- **Date** de l'événement.
+- **Bilan humain** (morts/blessés).
+- **Localisation** (école/état).
+:::
 
-### Ventes de jeux vidéo
-- **Titre** : Nom du jeu.
-- **Plateforme** : Console ou support.
-- **Genre** : Catégorie du jeu.
-- **Ventes mondiales** : Volume de ventes global.
+::: {.column width="50%"}
+### 🎮 Jeux Vidéo
+- **Titre & Genre**.
+- **Plateforme**.
+- **Ventes mondiales**.
+:::
+:::
 
 ## 2. Préparation des données
 
-1. **Nettoyage** : Traitement des valeurs manquantes et suppression des doublons.
-2. **Filtrage** : Sélection exclusive des données relatives aux États-Unis.
-3. **Jointure** : Fusion des deux jeux de données sur la dimension temporelle (l'année).
+::: {.callout-note appearance="simple"}
+## Processus de traitement
+1. **Nettoyage** : Valeurs manquantes et doublons.
+2. **Filtrage** : Focus exclusif sur les **États-Unis**.
+3. **Jointure** : Fusion temporelle par année.
+:::
 
 ## 3. Analyse exploratoire
 
-### Évolution du nombre de tueries par an
+### Évolution des tueries (USA)
 
 ```{python}
 #| echo: false
@@ -58,27 +75,23 @@ import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
 
+plt.style.use('ggplot') 
 conn = sqlite3.connect('./data.db')
-query = """
-SELECT year, COUNT(*) AS shooting_count
-FROM school_shootings
-WHERE year IS NOT NULL
-GROUP BY year
-ORDER BY year ASC
-"""
+query = "SELECT year, COUNT(*) AS shooting_count FROM school_shootings WHERE year IS NOT NULL GROUP BY year ORDER BY year ASC"
 df = pd.read_sql_query(query, conn)
 conn.close()
 
-plt.figure(figsize=(10, 5))
-plt.bar(df['year'].astype(str), df['shooting_count'], color='orange', edgecolor='black')
-plt.title('Nombre de tueries en milieu scolaire par année (USA)')
+plt.figure(figsize=(10, 4))
+plt.bar(df['year'].astype(str), df['shooting_count'], color='#e67e22', alpha=0.8)
+plt.title('Nombre de tueries par année', fontsize=14)
 plt.xticks(rotation=45, fontsize=8)
+plt.tight_layout()
 plt.show()
 ```
 
 ---
 
-### Évolution des ventes de jeux vidéo
+### Ventes de jeux vidéo (Records)
 
 ```{python}
 #| echo: false
@@ -88,31 +101,31 @@ import sqlite3
 import matplotlib.pyplot as plt
 
 conn = sqlite3.connect('./data.db')
-query = """
-SELECT CAST(strftime('%Y', release_date) AS INTEGER) AS year, MAX(total_sales) AS top_game_sales
-FROM video_games 
-WHERE release_date IS NOT NULL AND total_sales IS NOT NULL
-GROUP BY year
-"""
+query = "SELECT CAST(strftime('%Y', release_date) AS INTEGER) AS year, MAX(total_sales) AS top_game_sales FROM video_games WHERE release_date IS NOT NULL AND total_sales IS NOT NULL GROUP BY year"
 df_vg = pd.read_sql_query(query, conn)
 conn.close()
 
 df_vg = df_vg[(df_vg['year'] >= 1999) & (df_vg['year'] <= 2024)]
 
-plt.figure(figsize=(10, 5))
-plt.plot(df_vg['year'], df_vg['top_game_sales'], marker='o', color='tab:blue')
-plt.title('Ventes du record de l\'année (Millions)')
+plt.figure(figsize=(10, 4))
+plt.plot(df_vg['year'], df_vg['top_game_sales'], marker='o', color='#3498db', linewidth=2)
+plt.title('Ventes du record de l\'année (en Millions)', fontsize=14)
 plt.grid(True, alpha=0.3)
+plt.tight_layout()
 plt.show()
 ```
 
 ## 4. Modélisation
 
-1. **Analyse de corrélation** : Mesurer l'intensité de la relation statistique entre les ventes de jeux vidéo et le nombre de tueries.
-2. **Régression linéaire** : Tentative de modélisation prédictive du nombre de tueries en fonction du volume de ventes des jeux vidéo.
+- **Analyse de corrélation** : Intensité de la relation statistique.
+- **Régression linéaire** : Modèle prédictif (Tueries ~ Ventes).
 
-## 5. Conclusion
+> Le volume de ventes n'est pas un prédicteur fiable du nombre d'incidents.
 
-- **Résultat** : Absence de corrélation directe statistiquement significative.
-- **Interprétation** : Les jeux vidéo ne semblent pas être le moteur principal de la violence scolaire.
-- **Perspectives** : Nécessité d'étudier d'autres facteurs (accès aux armes à feu, santé mentale, environnement socio-économique).
+## 5. Conclusion {background-color="#2c3e50"}
+
+::: {style="color: white;"}
+- **Résultat** : Absence de corrélation directe.
+- **Analyse** : Les jeux vidéo ne sont pas le moteur principal.
+- **Ouverture** : Facteurs socio-politiques et accès aux armes.
+:::
