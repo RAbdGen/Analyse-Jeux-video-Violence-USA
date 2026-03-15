@@ -13,6 +13,7 @@ format:
     highlight-style: github
     title-slide-attributes:
       data-background-color: "#f8f9fa"
+embed-resources: true
 ---
 
 ## Plan
