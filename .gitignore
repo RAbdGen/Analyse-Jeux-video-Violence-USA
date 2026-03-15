@@ -1,0 +1,32 @@
+# Environnement virtuel
+.venv/
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.history/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Quarto (Fichiers générés et caches)
+.quarto/
+*_files/
+*_cache/
+index.html
+site_libs/
+
+# Données et Bases de données
+# On ignore la DB générée et les gros fichiers CSV pour ne pas alourdir Git
+data.db
+*.csv
+
+# Systèmes
+.DS_Store
+Thumbs.db
