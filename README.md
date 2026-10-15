@@ -68,7 +68,7 @@ Les graphiques sont déjà enregistrés dans le notebook : on peut le lire sans 
 
 ### Réexécuter le notebook
 
-Les deux CSV et `data.db` sont dans le dépôt, et les chemins sont relatifs : lancez Jupyter **depuis la racine du projet**. La cellule de création de la base (`data.db`) régénère les tables depuis les CSV. La cellule d'aperçu des jeux vidéo utilise un chemin absolu propre à une machine (`/home/r/Work/Licence/...`) et affiche une erreur ailleurs : elle n'empêche pas le reste de fonctionner, puisque la cellule suivante relit les CSV avec des chemins relatifs.
+Les deux CSV et `data.db` sont dans le dépôt et tous les chemins sont relatifs : lancez Jupyter **depuis la racine du projet**. La cellule de création de la base régénère les tables de `data.db` depuis les CSV.
 
 ### Générer la présentation (optionnel)
 
